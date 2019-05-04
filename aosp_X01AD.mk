@@ -22,27 +22,27 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/product_launched_with_o_mr1.mk
 # Inherit some common aosp stuff
 $(call inherit-product, vendor/aosp/config/common.mk)
 
-# Inherit from X01BD device
+# Inherit from X01AD device
 $(call inherit-product, $(LOCAL_PATH)/device.mk)
 
 # Device identifier. This must come after all inclusions.
-PRODUCT_NAME := aosp_X01BD
-PRODUCT_DEVICE := X01BD
+PRODUCT_NAME := aosp_X01AD
+PRODUCT_DEVICE := X01AD
 PRODUCT_BRAND := asus
-PRODUCT_MODEL := Zenfone Max Pro M2
+PRODUCT_MODEL := Zenfone Max M2
 PRODUCT_MANUFACTURER := asus
 
 PRODUCT_GMS_CLIENTID_BASE := android-asus
 
 TARGET_VENDOR := asus
-TARGET_VENDOR_PRODUCT_NAME := X01BD
-TARGET_VENDOR_DEVICE_NAME := X01BD
+TARGET_VENDOR_PRODUCT_NAME := X01AD
+TARGET_VENDOR_DEVICE_NAME := X01AD
 TARGET_BOOT_ANIMATION_RES := 1080
 
 PRODUCT_ENFORCE_RRO_TARGETS := \
     framework-res
 
-PRODUCT_BUILD_PROP_OVERRIDES += TARGET_DEVICE=X01BD PRODUCT_NAME=X01BD
+PRODUCT_BUILD_PROP_OVERRIDES += TARGET_DEVICE=X01AD PRODUCT_NAME=X01AD
 
 PRODUCT_BUILD_PROP_OVERRIDES += \
     PRIVATE_BUILD_DESC="jason-user 7.1.1 NMF26X V9.6.2.0.NCHMIFD release-keys"

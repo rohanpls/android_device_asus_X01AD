@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-DEVICE_PATH := device/asus/X01BD
+DEVICE_PATH := device/asus/X01AD
 
 BOARD_VENDOR := asus
 
@@ -48,7 +48,7 @@ TARGET_KERNEL_CONFIG := m2pro_defconfig
 
 # Assert
 TARGET_BOARD_INFO_FILE := $(DEVICE_PATH)/board-info.txt
-TARGET_OTA_ASSERT_DEVICE := ASUS_X01BD,X01BD
+TARGET_OTA_ASSERT_DEVICE := ASUS_X01AD,X01AD
 
 # Audio
 AUDIO_FEATURE_ENABLED_3D_AUDIO := false
@@ -235,7 +235,7 @@ TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/rootdir/etc/recovery.fstab
 BOARD_HAS_LARGE_FILESYSTEM := true
 
 # Releasetools
-TARGET_RECOVERY_UPDATER_LIBS := librecovery_updater_X01BD
+TARGET_RECOVERY_UPDATER_LIBS := librecovery_updater_X01AD
 TARGET_RELEASETOOLS_EXTENSIONS := $(DEVICE_PATH)
 
 # RIL
@@ -276,4 +276,4 @@ WIFI_DRIVER_STATE_OFF := 0
 WIFI_DRIVER_STATE_ON := 1
 
 # inherit from the proprietary version
--include vendor/asus/X01BD/BoardConfigVendor.mk
+-include vendor/asus/X01AD/BoardConfigVendor.mk

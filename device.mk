@@ -219,7 +219,7 @@ PRODUCT_COPY_FILES += \
 
 # Lights
 PRODUCT_PACKAGES += \
-    android.hardware.light@2.0-service.x01bd
+    android.hardware.light@2.0-service.X01AD
 
 # Media
 PRODUCT_COPY_FILES += \
@@ -412,7 +412,7 @@ PRODUCT_PACKAGES += \
 
 # Recovery
 PRODUCT_PACKAGES += \
-    librecovery_updater_X01BD
+    librecovery_updater_X01AD
 
 # RIL
 PRODUCT_PACKAGES += \
@@ -484,4 +484,4 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     AsusPref	
 
-$(call inherit-product, vendor/asus/X01BD/X01BD-vendor.mk)
+$(call inherit-product, vendor/asus/X01AD/X01AD-vendor.mk)
