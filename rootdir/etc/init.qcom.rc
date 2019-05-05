@@ -1,4 +1,4 @@
-# Copyright (c) 2009-2012, 2014-2017, The Linux Foundation. All rights reserved.
+# Copyright (c) 2009-2012, 2014-2018, The Linux Foundation. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -34,6 +34,7 @@ import /vendor/etc/init/hw/init.qcom.test.rc
 on early-init
     mount debugfs debugfs /sys/kernel/debug
     chmod 0755 /sys/kernel/debug
+
   # create symlink for vendor mount points
     symlink /vendor/firmware_mnt /firmware
     symlink /vendor/bt_firmware /bt_firmware
@@ -47,6 +48,8 @@ on early-init
 
     chown root system /dev/kmsg
     chmod 0620 /dev/kmsg
+    # Load WIGIG platform driver
+    exec u:r:vendor_modprobe:s0 -- /vendor/bin/modprobe -a -d /vendor/lib/modules msm_11ad_proxy
 
 on init
     # Create cgroup mount point for memory
@@ -78,10 +81,10 @@ on early-boot
     chmod 0664 /persist/sensors/sensors_settings
 
     # Huaqin modify for ZQL1820P1-98 by wobo at 2018/11/19 start
-    chown root system /dev/input/event3
+    chown root system /dev/input/event3  /*stk3x3x-light*/
     chgrp system /dev/input/event3
 
-    chown root system /dev/input/event4
+    chown root system /dev/input/event4  /*stk3x3x-proximity*/
     chgrp system /dev/input/event4
     # Huaqin modify for ZQL1820P1-98 by wobo at 2018/11/19 end
 
@@ -112,6 +115,7 @@ on boot
     chown system system /sys/kernel/debug/msm_core/enable
     chown system system /sys/kernel/debug/msm_core/ptable
     chown system system /sys/kernel/boot_slpi/ssr
+    chown system system /sys/kernel/boot_adsp/ssr
     chown system system /sys/module/radio_iris_transport/parameters/fmsmd_set
     chmod 0660 /sys/module/bluetooth_power/parameters/power
     chmod 0660 /sys/module/hci_smd/parameters/hcismd_set
@@ -153,22 +157,6 @@ on boot
 
     setprop wifi.interface wlan0
 
-    # kcal
-    chown system system /sys/devices/platform/kcal_ctrl.0/kcal
-    chown system system /sys/devices/platform/kcal_ctrl.0/kcal_enable
-    chown system system /sys/devices/platform/kcal_ctrl.0/kcal_cont
-    chown system system /sys/devices/platform/kcal_ctrl.0/kcal_sat
-    chown system system /sys/devices/platform/kcal_ctrl.0/kcal_hue
-    chown system system /sys/devices/platform/kcal_ctrl.0/kcal_min
-    chown system system /sys/devices/platform/kcal_ctrl.0/kcal_val
-    chmod 0660 /sys/devices/platform/kcal_ctrl.0/kcal
-    chmod 0660 /sys/devices/platform/kcal_ctrl.0/kcal_enable
-    chmod 0660 /sys/devices/platform/kcal_ctrl.0/kcal_cont
-    chmod 0660 /sys/devices/platform/kcal_ctrl.0/kcal_sat
-    chmod 0660 /sys/devices/platform/kcal_ctrl.0/kcal_hue
-    chmod 0660 /sys/devices/platform/kcal_ctrl.0/kcal_min
-    chmod 0660 /sys/devices/platform/kcal_ctrl.0/kcal_val
-
 #   Define TCP buffer sizes for various networks
 #   ReadMin, ReadInitial, ReadMax, WriteMin, WriteInitial, WriteMax,
     setprop net.tcp.buffersize.wifi    524288,2097152,4194304,262144,524288,1048576
@@ -177,7 +165,11 @@ on boot
     setprop ro.telephony.call_ring.multiple false
 
     #enable camera read sensors data
+    # Huaqin add for 1261108 by huqian at 2018/11/29 start
+    # Huaqin add for ZQL1820P1-27 by huqian at 2018/11/12 start
     setprop persist.vendor.camera.gyro.disable 0
+    # Huaqin add for ZQL1820P1-27 by huqian at 2018/11/12 end
+    # Huaqin add for 1261108 by huqian at 2018/11/29 end
 
     #Remove SUID bit for iproute2 ip tool
     chmod 0755 /system/bin/ip
@@ -320,10 +312,10 @@ on post-fs-data
     chmod 0644 /persist/flag/cid.txt
     chown system system /persist/flag/colorid.txt
     chmod 0644 /persist/flag/colorid.txt
-    # Huaqin add for MULTI SIM by jindaolun at 2018/3/1 start
+    /* Huaqin add for MULTI SIM by jindaolun at 2018/3/1 start*/
     chown system system /persist/flag/multisim.txt
     chmod 0644 /persist/flag/multisim.txt
-    # Huaqin add for MULTI SIM by jindaolun at 2018/3/1 end
+    /* Huaqin add for MULTI SIM by jindaolun at 2018/3/1 end*/
     # Huaqin add for ZQL1650-126 CountryCode by yangzhiyuan at 2018/01/23 end
 
     #create port-bridge log dir
@@ -423,10 +415,6 @@ on post-fs-data
     chmod 2770 /data/vendor/perfd
     rm /data/vendor/perfd/default_values
 
-    # NFC local data and nfcee xml storage
-    mkdir /data/vendor/nfc 0770 nfc nfc
-    mkdir /data/vendor/nfc/param 0770 nfc nfc
-
     #Create IOP  deamon related dirs
     mkdir /data/vendor/iop 0700 root system
 
@@ -490,53 +478,43 @@ on post-fs-data
 # Huaqin add for ZQL1650-126 CountryCode by yangzhiyuan at 2018/01/24 start
 # Huaqin add for bt/wifi prop by zhouyingchen at 2018/03/23 start
 # Huaqin add for change class core  by xudayi at 2018/05/28 start
-# service nvram_country /vendor/bin/nvram_country
-#     class core
-#     user root
-#    group system
-#     chmod 0644 /vendor/bin/nvram_country
-#     oneshot
-# Huaqin add for change class core  by xudayi at 2018/05/28 end
-
-service nvram_btwifi /vendor/bin/nvram_btwifi
+service nvram_country /vendor/bin/nvram_country
+    class core
     user root
     group system
-    chmod 0644 /vendor/bin/nvram_btwifi
+    chmod 0644 /vendor/bin/nvram_country
+    oneshot
+# Huaqin add for change class core  by xudayi at 2018/05/28 end
+
+service nvram_btwifi /system/bin/nvram_btwifi
+    user root
+    group system
     oneshot
     disabled
 
 on property:sys.boot_completed=1
-start nvram_btwifi
+    start nvram_btwifi
 
 on property:sys.nvram.btmac=*
     setprop ro.btmac ${sys.nvram.btmac}
-    start vendor-btmac-sh
-
 on property:sys.nvram.wifimac=*
     setprop ro.wifimac ${sys.nvram.wifimac}
 # Huaqin add for bt/wifi prop by zhouyingchen at 2018/03/23 end
 # Huaqin add for ZQL1650-126 CountryCode by yangzhiyuan at 2018/01/24 end
-
-service vendor-btmac-sh  /vendor/bin/init.btmac.sh
-    class core
-    user root
-    oneshot
-    disabled
-
-service nqnfcinfo /vendor/bin/nqnfcinfo
+service nqnfcinfo /system/vendor/bin/nqnfcinfo
     class late_start
     group nfc
     user system
     oneshot
 
-service iop /vendor/bin/iop
+service iop /system/vendor/bin/iop
     class main
     user root
     group root
     disabled
     socket iop seqpacket 0666 root system
 
-service qcomsysd /vendor/bin/qcom-system-daemon
+service qcomsysd /system/vendor/bin/qcom-system-daemon
     class main
     user root
     group root diag oem_2901
@@ -548,11 +526,11 @@ on property:persist.vendor.qcomsysd.enabled=1
 on property:persist.vendor.qcomsysd.enabled=0
     stop qcomsysd
 
-service vendor.ssr_setup /vendor/bin/ssr_setup
+service vendor.ssr_setup /system/vendor/bin/ssr_setup
     oneshot
     disabled
 
-service vendor.ss_ramdump /vendor/bin/subsystem_ramdump
+service vendor.ss_ramdump /system/vendor/bin/subsystem_ramdump
     class main
     user system
     group system
@@ -657,12 +635,12 @@ on property:vold.decrypt=trigger_restart_framework
 on property:persist.env.fastdorm.enabled=true
     setprop persist.radio.data_no_toggle 1
 
-service cnd /vendor/bin/cnd
+service vendor.cnd /system/vendor/bin/cnd
     class main
     user system
     group system wifi inet radio wakelock net_admin
 
-service dpmQmiMgr /vendor/bin/dpmQmiMgr
+service dpmQmiMgr /system/vendor/bin/dpmQmiMgr
     class main
     user system
     group system
@@ -694,7 +672,7 @@ on property:vendor.wc_transport.start_hci=true
 on property:vendor.wc_transport.start_hci=false
     stop vendor.start_hci_filter
 
-service vendor.start_hci_filter /vendor/bin/wcnss_filter
+service vendor.start_hci_filter /system/vendor/bin/wcnss_filter
     class late_start
     user bluetooth
     group bluetooth diag system wakelock
@@ -722,14 +700,14 @@ service vendor.bt_logger /system/bin/bt_logger
    disabled
    oneshot
 
-service ftmd /system/bin/logwrapper /vendor/bin/ftmdaemon
+service ftmd /system/bin/logwrapper /system/bin/ftmdaemon
     class late_start
     user root
     group bluetooth net_bt_admin misc net_bt_stack diag net_bt
     disabled
     oneshot
 
-service vendor.port-bridge /vendor/bin/port-bridge
+service vendor.port-bridge /system/vendor/bin/port-bridge
     class main
     user radio
     group radio system inet
@@ -743,41 +721,42 @@ service qmiproxy /system/bin/qmiproxy
     disabled
 
 # QMUX must be in multiple groups to support external process connections
-service vendor.qmuxd /vendor/bin/qmuxd
+service vendor.qmuxd /system/vendor/bin/qmuxd
     class main
     user root
     group radio audio bluetooth gps nfc diag
     disabled
 
-service vendor.netmgrd /vendor/bin/netmgrd
+service vendor.netmgrd /system/vendor/bin/netmgrd
     class main
     disabled
 
-service vendor.ipacm-diag /vendor/bin/ipacm-diag
+service vendor.ipacm-diag /system/vendor/bin/ipacm-diag
     class main
     user radio
     socket ipacm_log_file dgram 660 radio radio
     group radio diag oem_2901
     disabled
 
-service vendor.ipacm /vendor/bin/ipacm
+service vendor.ipacm /system/vendor/bin/ipacm
     class main
     user radio
     group radio inet
     disabled
 
-service vendor.dataqti /vendor/bin/qti
+service vendor.dataqti /system/vendor/bin/qti
     class main
     user radio
     group radio oem_2901 diag usb net_admin
     disabled
 
-service vendor.dataadpl /vendor/bin/adpl
+service vendor.dataadpl /system/vendor/bin/adpl
     class main
     user radio
     group radio oem_2901 diag usb net_admin
     disabled
-service vendor.sensors /vendor/bin/sensors.qcom
+
+service vendor.sensors /vendor/bin/sscrpcd
     class core
     user system
     group system
@@ -837,6 +816,7 @@ service vendor.move_wifi_data /system/bin/move_wifi_data.sh
     group wifi
     disabled
     oneshot
+
 # FST Manager with hostapd (softap) - all settings inside ini file
 service fstman /vendor/bin/fstman -B -ddd -c /data/vendor/wifi/fstman.ini -a 1
     user wifi
@@ -873,12 +853,6 @@ service wigignpt /vendor/bin/wigignpt
     group wifi
     capabilities NET_ADMIN
     disabled
-on property:persist.vendor.wigig.enable=1
-    insmod /vendor/lib/modules/wil6210.ko alt_ifname=1
-    start wigighalsvc
-
-on property:persist.vendor.wigig.npt.enable=1
-    start wigignpt
 
 service dhcpcd_wlan0 /system/bin/dhcpcd -ABKLG
     class late_start
@@ -920,20 +894,20 @@ service iprenew_wigig0 /system/bin/dhcpcd -n
     disabled
     oneshot
 
-service ptt_socket_app /vendor/bin/ptt_socket_app -d
+service ptt_socket_app /system/vendor/bin/ptt_socket_app -d
     class main
     user wifi
     group wifi system inet net_admin
     capabilities NET_ADMIN
     oneshot
 
-service ptt_ffbm /vendor/bin/ptt_socket_app -f -d
+service ptt_ffbm /system/vendor/bin/ptt_socket_app -f -d
     user root
     group root
     disabled
     oneshot
 
-service wifi_ftmd /vendor/bin/wifi_ftmd
+service wifi_ftmd /system/vendor/bin/wifi_ftmd
     user system
     group system inet net_admin
     socket wififtmd_server dgram 0660 system system
@@ -955,7 +929,7 @@ on property:persist.vendor.data.perf_ko_load=1
 on property:persist.vendor.data.perf_ko_load=0
     exec u:r:vendor_modprobe:s0 -- /vendor/bin/modprobe -r -d /vendor/lib/modules rmnet_perf
 
-service cnss-daemon /vendor/bin/cnss-daemon -n -l
+service cnss-daemon /system/vendor/bin/cnss-daemon -n -l
     class late_start
     user system
     group system inet net_admin wifi
@@ -1000,8 +974,7 @@ service vendor.qdmastatsd /system/vendor/bin/qdmastatsd
     user system
     group readproc system net_bw_stats radio vendor_rfs_shared
 
-service loc_launcher /vendor/bin/loc_launcher
-    #loc_launcher will start as root and set its uid to gps
+service loc_launcher /system/vendor/bin/loc_launcher
     class late_start
     user gps
     group gps
@@ -1010,7 +983,7 @@ on property:crypto.driver.load=1
      insmod /system/lib/modules/qce.ko
      insmod /system/lib/modules/qcedev.ko
 
-service drmdiag /vendor/bin/drmdiagapp
+service drmdiag /system/vendor/bin/drmdiagapp
     class late_start
      user root
      disabled
@@ -1033,6 +1006,11 @@ service vendor-sensor-sh /vendor/bin/init.qcom.sensors.sh
     user root
     oneshot
 
+service crashdata-sh /vendor/bin/init.qcom.crashdata.sh
+    class late_start
+    user root
+    oneshot
+
 service qcom-post-boot /vendor/bin/init.qcom.post_boot.sh
     class late_start
     user root
@@ -1040,23 +1018,32 @@ service qcom-post-boot /vendor/bin/init.qcom.post_boot.sh
     disabled
     oneshot
 
+service qti-testscripts /system/bin/sh /system/etc/init.qcom.testscripts.sh
+    class late_start
+    user root
+    disabled
+    oneshot
+    seclabel u:r:qti-testscripts:s0
+
 service wifi-sdio-on /vendor/bin/init.qcom.sdio.sh
     class late_start
     group wifi inet
     disabled
     oneshot
 
+service wifi-crda /vendor/bin/init.crda.sh
+   class late_start
+   user root
+   disabled
+   oneshot
+
 on property:sys.boot_completed=1
     start qcom-post-boot
-
-on property:vendor.hw.fm.init=0
-    write /sys/module/radio_iris_transport/parameters/fmsmd_set 0
-
-on property:vendor.hw.fm.init=1
-    write /sys/module/radio_iris_transport/parameters/fmsmd_set 1
+    start qti-testscripts
 
 on property:ro.vendor.ril.mbn_copy_completed=1
     write /data/vendor/radio/copy_complete 1
+
 service qvop-daemon /vendor/bin/qvop-daemon
     class late_start
     user system
@@ -1084,13 +1071,16 @@ service vendor.wigig_hostapd /vendor/bin/hw/hostapd -dd  -j wigighostapd /data/v
     oneshot
     disabled
 
+# Huaqin modify for ZQL1820P1-0 by liunianliang at 2018/11/12 start
 #Huaqin modify for ZQL1650-6 by chengming at 2018/01/30 start
 #ASUS_BSP++ Write IMEI to device ID
 on property:persist.radio.device.imei=*
     setprop ro.deviceid ${persist.radio.device.imei}
+    setprop ro.vendor.deviceid ${persist.radio.device.imei}
 #Huaqin modify for ZQL1650-6 by chengming at 2018/01/30 end
+# Huaqin modify for ZQL1820P1-0 by liunianliang at 2018/11/12 end
 
-service ims_regmanager /vendor/bin/exe-ims-regmanagerprocessnative
+service ims_regmanager /system/vendor/bin/exe-ims-regmanagerprocessnative
     class late_start
     group net_bt_admin inet radio wifi
     disabled
@@ -1132,11 +1122,22 @@ service charger /charger
     group system graphics
     seclabel u:r:healthd:s0
 
-service vendor.ssr_diag /vendor/bin/ssr_diag
+service vendor.ssr_diag /system/vendor/bin/ssr_diag
     class late_start
     user system
     group system
     disabled
+
+service hvdcp /system/bin/hvdcp
+    class core
+    user root
+    disabled
+
+on property:persist.usb.hvdcp.detect=true
+    start hvdcp
+
+on property:persist.usb.hvdcp.detect=false
+    stop hvdcp
 
 service charger_monitor /system/bin/charger_monitor
     user root
@@ -1153,14 +1154,14 @@ on property:sys.qbcharger.enable=true
 on property:sys.qbcharger.enable=false
     stop qbcharger
 
-service diag_mdlog_start /vendor/bin/diag_mdlog
+service diag_mdlog_start /system/vendor/bin/diag_mdlog
     class late_start
     user shell
     group system oem_2901 sdcard_rw sdcard_r media_rw
     disabled
     oneshot
 
-service diag_mdlog_stop /vendor/bin/diag_mdlog -k
+service diag_mdlog_stop /system/vendor/bin/diag_mdlog -k
     class late_start
     user shell
     group system oem_2901 sdcard_rw sdcard_r media_rw
@@ -1181,19 +1182,19 @@ service vm_bms /vendor/bin/vm_bms
     group root
     disabled
 
-service vendor.msm_irqbalance /vendor/bin/msm_irqbalance -f /vendor/etc/msm_irqbalance.conf
+service vendor.msm_irqbalance /vendor/bin/msm_irqbalance -f /system/vendor/etc/msm_irqbalance.conf
     class core
     user root
     group root
     disabled
 
-service vendor.msm_irqbal_lb /vendor/bin/msm_irqbalance -f /vendor/etc/msm_irqbalance_little_big.conf
+service vendor.msm_irqbal_lb /vendor/bin/msm_irqbalance -f /system/vendor/etc/msm_irqbalance_little_big.conf
     class core
     user root
     group root
     disabled
 
-service vendor.msm_irqbl_sdm630 /vendor/bin/msm_irqbalance -f /vendor/etc/msm_irqbalance_sdm630.conf
+service vendor.msm_irqbl_sdm630 /vendor/bin/msm_irqbalance -f /system/vendor/etc/msm_irqbalance_sdm630.conf
     class core
     user root
     group root
@@ -1215,12 +1216,12 @@ service vendor.LKCore-rel /vendor/bin/LKCore
     user system
     group system log diag
 
-service qseeproxydaemon /vendor/bin/qseeproxydaemon
+service qseeproxydaemon /system/vendor/bin/qseeproxydaemon
     class late_start
     user system
     group system
 
-service esepmdaemon /vendor/bin/esepmdaemon
+service esepmdaemon /system/vendor/bin/esepmdaemon
     class core
     user system
     group nfc
@@ -1231,7 +1232,7 @@ on charger
     start qcom-post-boot
 
 #add poweroffhandler
-service poweroffhandler /vendor/bin/poweroffhandler
+service poweroffhandler /system/vendor/bin/poweroffhandler
     class core
     user media
     group graphics audio
@@ -1272,6 +1273,7 @@ service power_off_alarm /vendor/bin/power_off_alarm
     group system
     disabled
     oneshot
+
 service vendor.move_time_data /system/bin/move_time_data.sh
     class main
     user system
@@ -1298,13 +1300,14 @@ service bugreport /system/bin/dumpstate -d -p -B -z -o /data/user_de/0/com.andro
     disabled
     oneshot
     keycodes 114 115 116
-# Huaqin add for ZQL1820-42 by puqirui at 2018/08/02 start 
+/* Huaqin add for ZQL1820-42 by puqirui at 2018/08/02 start */
 # ------------------- focal fingerprint begin -------------------
 on post-fs-data
 	mkdir /data/vendor/focaltech 0760 system system
 	restorecon /data/vendor/focaltech
 # ------------------- focal fingerprint end ---------------------
-# Huaqin add for ZQL1820-42 by puqirui at 2018/08/02 start
+/* Huaqin add for ZQL1820-42 by puqirui at 2018/08/02 start */
+
 
 # Huaqin modify for ZQL1820-1190 by yangzhiyuan at 2018/11/19 start
 on property:persist.asus.ramdump=1
@@ -1312,6 +1315,7 @@ on property:persist.asus.ramdump=1
 on property:persist.asus.ramdump=0
     write /sys/module/msm_poweroff/parameters/download_mode 0
 # Huaqin modify for ZQL1820-1190 by yangzhiyuan at 2018/11/19 end
+
 #Set GPU Opengles version
 on property:vendor.opengles.version=*
     setprop ro.opengles.version ${vendor.opengles.version}
