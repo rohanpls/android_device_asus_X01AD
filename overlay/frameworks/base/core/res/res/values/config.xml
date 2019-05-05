@@ -431,7 +431,7 @@
     <bool name="config_showNavigationBar">true</bool>
 
      <!-- Height of the status bar -->
-    <dimen name="status_bar_height">81.px</dimen>
+    <dimen name="status_bar_height">81.0px</dimen>
     <dimen name="status_bar_height_portrait">81.0px</dimen>
     <dimen name="status_bar_height_landscape">81.0px</dimen>
 
