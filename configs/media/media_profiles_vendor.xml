@@ -2183,11 +2183,12 @@
         minFrameRate="15" maxFrameRate="30"
         maxHFRFrameWidth="0" maxHFRFrameHeight="0"
         maxHFRMode="0"  />
-
+　　<!--Huaqin modify for　TT1264727 by pengjiaxin at 2018/12/19 start-->
     <AudioEncoderCap name="aac" enabled="true"
-        minBitRate="8000" maxBitRate="96000"
+        minBitRate="8000" maxBitRate="192000"
         minSampleRate="8000" maxSampleRate="48000"
         minChannels="1" maxChannels="6" />
+　　<!--Huaqin modify for TT1264727 by pengjiaxin at 2018/12/19 end-->
 
     <AudioEncoderCap name="heaac" enabled="true"
         minBitRate="8000" maxBitRate="64000"
