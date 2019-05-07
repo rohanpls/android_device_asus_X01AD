@@ -410,10 +410,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     android.hardware.renderscript@1.0-impl
 
-# Recovery
-PRODUCT_PACKAGES += \
-    librecovery_updater_X01AD
-
 # RIL
 PRODUCT_PACKAGES += \
     android.hardware.radio@1.2 \
@@ -422,6 +418,10 @@ PRODUCT_PACKAGES += \
     librmnetctl \
     libxml2 \
     libprotobuf-cpp-full
+
+# Recovery
+PRODUCT_PACKAGES += \
+    librecovery_updater_X01AD
 
 #QCOM
 PRODUCT_COPY_FILES += \
