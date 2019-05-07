@@ -123,6 +123,7 @@ TARGET_CRYPTFS_HW_PATH ?= vendor/qcom/opensource/cryptfs_hw
 
 # Charger
 BOARD_CHARGER_ENABLE_SUSPEND := true
+BOARD_HAL_STATIC_LIBRARIES := libhealthd.msm
 
 # CNE
 BOARD_USES_QCNE := true
