@@ -15,4 +15,4 @@
 #
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/aosp_X01AD.mk
+    $(LOCAL_DIR)/revengeos_X01AD.mk
