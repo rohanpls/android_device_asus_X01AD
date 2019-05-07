@@ -19,20 +19,13 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/product_launched_with_o_mr1.mk)
 
-# Inherit some common AOSP stuff.
-IS_PHONE := true
-TARGET_GAPPS_ARCH := arm64
-TARGET_DENSITY := xxhdpi
-
-# Inherit some common RevengeOS stuff.
-$(call inherit-product, vendor/revengeos/config/common.mk)
-$(call inherit-product, vendor/revengeos/config/gsm.mk)
+$(call inherit-product, vendor/dot/config/common.mk)
 
 # Inherit from X01AD device
 $(call inherit-product, $(LOCAL_PATH)/device.mk)
 
 # Device identifier. This must come after all inclusions.
-PRODUCT_NAME := revengeos_X01AD
+PRODUCT_NAME := dot_X01AD
 PRODUCT_DEVICE := X01AD
 PRODUCT_BRAND := asus
 PRODUCT_MODEL := Zenfone Max M2
